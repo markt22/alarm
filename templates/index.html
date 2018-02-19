@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block page_content %}
+<H1>Welcome to Kira's Wakey Wakey System!</H1>
+
+<p>The local time and date is {{ moment(current_time).format('LLL') }}.</p>
+
+    <div id="alarm_list" class="list-group">
+        {% for (idx, alarm) in alarms %}
+        <div class="alarm_item list-group-item 
+            list-group-item-{{ 'success' if alarm.enabled else 'warning' }}">
+            <a href="/alarm/{{ idx }}" class="btn btn-primary" role="button" >Edit</a>
+           {{ alarm.get_description() }} 
+        </div>
+        {% endfor %}
+
+    </div>
+{% endblock %}
