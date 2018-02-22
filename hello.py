@@ -20,13 +20,13 @@ class AlarmForm(FlaskForm):
 
 
 class DaysForm(AlarmForm):
-    sun = BooleanField('Sunday', default=True )
-    mon = BooleanField('Monday', default=True )
-    tue = BooleanField('Tuesday', default=True )
-    wed = BooleanField('Wednesday', default=True )
-    thu = BooleanField('Thursday', default=True )
-    fri = BooleanField('Friday', default=True )
-    sat = BooleanField('Saturday', default=True )
+    SUN = BooleanField('Sunday', default=True )
+    MON = BooleanField('Monday', default=True )
+    TUE = BooleanField('Tuesday', default=True )
+    WED = BooleanField('Wednesday', default=True )
+    THU = BooleanField('Thursday', default=True )
+    FRI = BooleanField('Friday', default=True )
+    SAT = BooleanField('Saturday', default=True )
     submit = SubmitField('Set Alarm')
 
 
@@ -50,12 +50,21 @@ def user(name):
 @app.route('/alarm/<idx>', methods=['GET','POST'])
 def alarm(idx):
     form = DaysForm()
-    the_alarm = jobs.get(int(idx))
+    the_alarm = jobs.get_job(int(idx))
     form.hour.data = int(str(the_alarm.hour))
     form.minute.data = int(str(the_alarm.minute))
+    for day in the_alarm.days:
+        checked = the_alarm.get_day(day)
+        form[day].data = checked
     if form.validate_on_submit():
         flash('Alarm saved')
         session['alarm']=form.hour.data
+        the_alarm.dow.clear()
+        for day in the_alarm.days:
+            if form[day].data == True:
+                the_alarm.dow.on(day)
+        print the_alarm
+
         return redirect(url_for('index'))
     return render_template('set.html', form=form, alarm=the_alarm)
     

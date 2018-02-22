@@ -1,6 +1,6 @@
 from crontab import CronTab, CronItem
 
-Days = ["Su", "M", "Tu", "W", "Th", "F", "Sa", "Su"]
+Days = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"]
 
 def get_description(self):
     """
@@ -14,13 +14,34 @@ def get_description(self):
     else:
         day = ''
         for aday in days.split(","):
-            day += Days[int(aday)] + " "
+            day += Days[int(aday) % 7 ] + " "
     enabled = 'Enabled' if self.enabled else 'Disabled'
     desc = "Alarm set for {0} at {1}:{2} ({3})".format(
             day, self.hour, self.minute, enabled)
     return desc
 
+def get_day(self, day):
+    """
+    get_day is a Monkey Patch for CronItem
+
+    Returns true if the dow is active
+    """
+    days = str(self.dow)
+    rc = False
+    if days == '*':
+        rc = True
+    else:
+        for a_day in days.split(','):
+            if day == Days[int(a_day) % 7]:
+                rc = True
+                break
+
+    return rc
+
+#Monkey patch CronItem
 CronItem.get_description = get_description
+CronItem.get_day = get_day
+CronItem.days = Days
 
 class Jobs():
     """
@@ -38,29 +59,30 @@ class Jobs():
     """
 
     def __init__(self, user, cmd):
-        self.cron = CronTab(user="mtaylor")
-        self.jobs = list(self.cron.find_command(cmd))
-        self.cmd = cmd
+        self.__cron = CronTab(user="mtaylor")
+        self.__jobs = list(self.__cron.find_command(cmd))
+        self.__cmd = cmd
 
     def __iter__(self):
-        return JobIterator(self.jobs)
+        return JobIterator(self.__jobs)
 
     def NumberAlarms(self):
-        return len(self.jobs)
+        return len(self.__jobs)
     
     def test(self):
         print "We are testing"
-        for job in self.jobs:
+        for job in self.__jobs:
             print job
-
-    def command(self):
-        return self.cmd
+    
+    @property
+    def cmd(self):
+        return self.__cmd
 
     def daysTime(self):
-        return JobDayTimeStringIterator(self.jobs)
-
-    def get(self, idx):
-        return self.jobs[idx]
+        return JobDayTimeStringIterator(self.__jobs)
+    
+    def get_job(self, idx):
+        return self.__jobs[idx]
 
     def CreateJob(self, min="*", hour="*", dom="*", mon="*", dow="*"):
         try:
@@ -81,15 +103,15 @@ class JobDayTimeStringIterator:
     that returns a easy readable format
     """
     def __init__(self, jobs):
-        self.jobs = jobs
-        self.index = 0
+        self.__jobs = jobs
+        self.__index = 0
     
     def next(self):
         try:
-            job = self.jobs[self.index]
+            job = self.__jobs[self.__index]
         except IndexError:
             raise StopIteration()
-        self.index += 1
+        self.__index += 1
         
         return job.get_description()
 
@@ -102,16 +124,16 @@ class JobIterator:
 
     """
     def __init__(self, jobs):
-        self.jobs = jobs
-        self.index = 0
+        self.__jobs = jobs
+        self.__index = 0
     
     def next(self):
         try:
-            job = self.jobs[self.index]
+            job = self.__jobs[self.__index]
         except IndexError:
             raise StopIteration()
-        self.index += 1
-        return (self.index-1, job)
+        self.__index += 1
+        return (self.__index-1, job)
 
     def __iter__(self):
         return self 
@@ -119,7 +141,7 @@ class JobIterator:
 
 if __name__ == "__main__":
     jobs = Jobs("mtaylor","alarm.sh")
-    print jobs.NumberAlarms()
+    print jobs.cmd
     for job in jobs:
         print job[1].get_description()
         print job[1].enabled
