@@ -52,13 +52,9 @@ def user(name):
 @app.route('/alarm/api/v1.0/state/<int:value>', methods=['GET'] )
 def alarm_set(value):
     if value == 1:
-        alarm_pid = sp.Popen(["./alarm.sh"])
+        sp.Popen(["./alarm.sh"])
     else:
         sp.Popen(["./unexport.sh"])
-
-    rc = 'Error'
-    if alarm_pid.poll() == None:
-        rc = 'Alarm is on'
 
     return  redirect(url_for('index'))
 
