@@ -59,7 +59,7 @@ class Jobs():
     """
 
     def __init__(self, user, cmd):
-        self.__cron = CronTab(user="mtaylor")
+        self.__cron = CronTab(user="pi")
         self.__jobs = list(self.__cron.find_command(cmd))
         self.__cmd = cmd
 
