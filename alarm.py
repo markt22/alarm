@@ -1,6 +1,6 @@
 from crontab import CronTab, CronItem
 
-Days = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"]
+Days = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"]
 
 def get_description(self):
     """
@@ -16,8 +16,8 @@ def get_description(self):
         for aday in days.split(","):
             day += Days[int(aday) % 7 ] + " "
     enabled = 'Enabled' if self.enabled else 'Disabled'
-    desc = "Alarm set for {0} at {1}:{2} ({3})".format(
-            day, self.hour, self.minute, enabled)
+    desc = "{} set for {} at {}:{} ({})".format(
+            self.comment, day, self.hour, self.minute, enabled)
     return desc
 
 def get_day(self, day):
@@ -69,6 +69,9 @@ class Jobs():
     def NumberAlarms(self):
         return len(self.__jobs)
     
+    def write(self):
+        self.__cron.write()
+
     def test(self):
         print "We are testing"
         for job in self.__jobs:

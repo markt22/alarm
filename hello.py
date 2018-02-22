@@ -20,13 +20,14 @@ class AlarmForm(FlaskForm):
 
 
 class DaysForm(AlarmForm):
-    SUN = BooleanField('Sunday', default=True )
-    MON = BooleanField('Monday', default=True )
-    TUE = BooleanField('Tuesday', default=True )
-    WED = BooleanField('Wednesday', default=True )
-    THU = BooleanField('Thursday', default=True )
-    FRI = BooleanField('Friday', default=True )
-    SAT = BooleanField('Saturday', default=True )
+    sun = BooleanField('Sunday', default=True )
+    mon = BooleanField('Monday', default=True )
+    tue = BooleanField('Tuesday', default=True )
+    wed = BooleanField('Wednesday', default=True )
+    thu = BooleanField('Thursday', default=True )
+    fri = BooleanField('Friday', default=True )
+    sat = BooleanField('Saturday', default=True )
+    enable = BooleanField('Enabled', default=True )
     submit = SubmitField('Set Alarm')
 
 
@@ -40,6 +41,7 @@ jobs = Jobs("mtaylor","alarm.sh")
 
 @app.route('/', methods=['GET'])
 def index():
+    jobs = Jobs("mtaylor","alarm.sh")
     return render_template('index.html', 
                             current_time=datetime.utcnow(), alarms=jobs)
 
@@ -51,21 +53,26 @@ def user(name):
 def alarm(idx):
     form = DaysForm()
     the_alarm = jobs.get_job(int(idx))
-    form.hour.data = int(str(the_alarm.hour))
-    form.minute.data = int(str(the_alarm.minute))
-    for day in the_alarm.days:
-        checked = the_alarm.get_day(day)
-        form[day].data = checked
     if form.validate_on_submit():
         flash('Alarm saved')
-        session['alarm']=form.hour.data
         the_alarm.dow.clear()
         for day in the_alarm.days:
             if form[day].data == True:
-                the_alarm.dow.on(day)
-        print the_alarm
-
+                print day," is true was it"
+                the_alarm.dow.also.on(the_alarm.days.index(day))
+        the_alarm.set_comment(form.name.data)
+        the_alarm.hour.on(form.hour.data)
+        the_alarm.minute.on(form.minute.data)
+        the_alarm.enable(form.enable.data)
+        jobs.write()
         return redirect(url_for('index'))
+    form.name.data = str(the_alarm.comment)
+    form.hour.data = int(str(the_alarm.hour))
+    form.minute.data = int(str(the_alarm.minute))
+    form.enable.data = the_alarm.enabled
+    for day in the_alarm.days:
+        checked = the_alarm.get_day(day)
+        form[day].data = checked
     return render_template('set.html', form=form, alarm=the_alarm)
     
 
