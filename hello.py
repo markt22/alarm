@@ -49,6 +49,20 @@ def index():
 def user(name):
     return render_template('user.html', name=name)
 
+@app.route('/alarm/api/v1.0/state/<int:value>', methods=['GET'] )
+def alarm_set(value):
+    if value == 1:
+        alarm_pid = sp.Popen(["./alarm.sh"])
+    else:
+        sp.Popen(["./unexport.sh"])
+
+    rc = 'Error'
+    if alarm_pid.poll() == None:
+        rc = 'Alarm is on'
+
+    return  redirect(url_for('index'))
+
+
 @app.route('/alarm/<idx>', methods=['GET','POST'])
 def alarm(idx):
     form = DaysForm()
@@ -86,5 +100,5 @@ def internal_server_error(e):
     return render_template('500.html'), 500
 
 if __name__ == "__main__":
-     app.run()
+    app.run(host='0.0.0.0', port=80)
 
