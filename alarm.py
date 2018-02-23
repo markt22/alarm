@@ -71,11 +71,6 @@ class Jobs():
     
     def write(self):
         self.__cron.write()
-
-    def test(self):
-        print "We are testing"
-        for job in self.__jobs:
-            print job
     
     @property
     def cmd(self):
@@ -86,19 +81,6 @@ class Jobs():
     
     def get_job(self, idx):
         return self.__jobs[idx]
-
-    def CreateJob(self, min="*", hour="*", dom="*", mon="*", dow="*"):
-        try:
-            time = "{} {} {} {} {}".format(
-                min,
-                hour,
-                dom,
-                mon,
-                dow)
-        except TypeError as e:
-            print "Invalid parameters"
-            pass
-        print time
 
 class JobDayTimeStringIterator:
     """
@@ -142,14 +124,6 @@ class JobIterator:
         return self 
 
 
-if __name__ == "__main__":
-    jobs = Jobs("mtaylor","alarm.sh")
-    print jobs.cmd
-    for job in jobs:
-        print job[1].get_description()
-        print job[1].enabled
-    job[1].set_comment("this 2 is a test")
-    jobs.test()
 
 
 
