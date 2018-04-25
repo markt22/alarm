@@ -85,6 +85,19 @@ def alarm(idx):
         form[day].data = checked
     return render_template('set.html', form=form, alarm=the_alarm)
     
+@app.route('/intercom, methods=['PUT', 'POST'])
+def intercom():
+    if request.method == 'PUT' or request.method == 'POST':
+        print request.headers['Content-Type']
+        if request.headers['Content-Type'] == 'application/octet-stream':
+            with open('/tmp/message.3gp', 'wb') as f:
+                f.write(request.data)
+                f.close() 
+        elif request.headers['Content-Type'] == 'text/plain':
+            print (request.data)
+    return '''
+        All done
+    '''
 
 
 @app.errorhandler(404)
