@@ -93,7 +93,7 @@ def intercom():
             with open('/tmp/message.3gp', 'wb') as f:
                 f.write(request.data)
                 f.close() 
-            sp.Popen(["./pLay_recording.sh"])
+            sp.Popen(["./play_recording.sh"])
         elif request.headers['Content-Type'] == 'text/plain':
             print (request.data)
             sp.Popen(["espeak","-s 120",  request.data])
