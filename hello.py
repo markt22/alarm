@@ -1,4 +1,4 @@
-from flask import Flask, render_template, session, redirect, url_for, flash
+from flask import Flask, render_template, request, session, redirect, url_for, flash
 from flask_bootstrap import Bootstrap
 from flask_moment import Moment
 from datetime import datetime
@@ -85,7 +85,7 @@ def alarm(idx):
         form[day].data = checked
     return render_template('set.html', form=form, alarm=the_alarm)
     
-@app.route('/intercom, methods=['PUT', 'POST'])
+@app.route('/intercom', methods=['PUT', 'POST'])
 def intercom():
     if request.method == 'PUT' or request.method == 'POST':
         print request.headers['Content-Type']
@@ -93,8 +93,10 @@ def intercom():
             with open('/tmp/message.3gp', 'wb') as f:
                 f.write(request.data)
                 f.close() 
+            sp.Popen(["./test.sh"])
         elif request.headers['Content-Type'] == 'text/plain':
             print (request.data)
+            sp.Popen(["espeak","-s 120",  request.data])
     return '''
         All done
     '''
